@@ -17,6 +17,7 @@ namespace LoopBack
             // Create new instance of the FTDI device class
             FTDI myFtdiDevice = new FTDI();
             
+            
             // Determine the number of FTDI devices connected to the machine
             ftStatus = myFtdiDevice.GetNumberOfDevices(ref ftdiDeviceCount);
             // Check status
@@ -64,8 +65,9 @@ namespace LoopBack
             }
 
 
+            
             // Open first device in our list by serial number
-            ftStatus = myFtdiDevice.OpenBySerialNumber(ftdiDeviceList[0].SerialNumber);
+            ftStatus = myFtdiDevice.OpenBySerialNumber(ftdiDeviceList[1].SerialNumber);
             if (ftStatus != FTDI.FT_STATUS.FT_OK)
             {
                 // Wait for a key press
@@ -73,6 +75,8 @@ namespace LoopBack
                 Console.ReadKey();
                 return;
             }
+
+            
 
             // Set up device data parameters
             // Set Baud rate to 9600
@@ -96,7 +100,8 @@ namespace LoopBack
             }
 
             // Set flow control - set RTS/CTS flow control
-            ftStatus = myFtdiDevice.SetFlowControl(FTDI.FT_FLOW_CONTROL.FT_FLOW_RTS_CTS, 0x11, 0x13);
+            
+            ftStatus = myFtdiDevice.SetFlowControl(FTDI.FT_FLOW_CONTROL.FT_FLOW_NONE,0,0);
             if (ftStatus != FTDI.FT_STATUS.FT_OK)
             {
                 // Wait for a key press
@@ -121,6 +126,15 @@ namespace LoopBack
             UInt32 numBytesWritten = 0;
             // Note that the Write method is overloaded, so can write string or byte array data
             ftStatus = myFtdiDevice.Write(dataToWrite, dataToWrite.Length, ref numBytesWritten);
+
+            myFtdiDevice.Purge(FTDI.FT_PURGE.FT_PURGE_TX);
+            if (numBytesWritten != dataToWrite.Length)
+            {
+                Console.WriteLine("Error writting");
+                Console.Read();
+                return;
+            }
+
             if (ftStatus != FTDI.FT_STATUS.FT_OK)
             {
                 // Wait for a key press
@@ -130,13 +144,16 @@ namespace LoopBack
             }
 
 
+
             // Check the amount of data available to read
             // In this case we know how much data we are expecting, 
             // so wait until we have all of the bytes we have sent.
             UInt32 numBytesAvailable = 0;
             do
             {
+               
                 ftStatus = myFtdiDevice.GetRxBytesAvailable(ref numBytesAvailable);
+                //Console.WriteLine(ftStatus + " " + numBytesAvailable);
                 if (ftStatus != FTDI.FT_STATUS.FT_OK)
                 {
                     // Wait for a key press
