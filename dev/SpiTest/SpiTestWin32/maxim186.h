@@ -26,7 +26,7 @@ typedef struct _maxim186_control_byte
 } maxim186_configuration_t;
 
 
-void maxim186_init(maxim186_configuration_t* adcConfig, FT_HANDLE handle);
+void maxim186_init(maxim186_configuration_t* adcConfig, FT_HANDLE handle, bool initHandle = true);
 
 uint32_t maxim186_get_converted_sample(maxim186_configuration_t* config);
 

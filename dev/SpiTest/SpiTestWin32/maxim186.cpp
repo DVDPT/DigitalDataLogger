@@ -11,9 +11,12 @@
 #define SIZE_OF_DATA_TO_READ_TO_RECOVER_CONVERTED_SAMPLE (2)
 #define SIZE_OF_ADC_CONTROL_WORD (1)
 
-void maxim186_init(maxim186_configuration_t* adcConfig, FT_HANDLE handle)
+void maxim186_init(maxim186_configuration_t* adcConfig, FT_HANDLE handle, bool initHandle)
 {
 	adcConfig->channel_handle = handle;
+
+	if(!initHandle)
+		return;
 
 #ifdef _DEBUG
 
@@ -30,13 +33,16 @@ uint32_t maxim186_get_converted_sample(maxim186_configuration_t* config)
 	uint32_t sizeTransfered;
 	uint8_t data[SIZE_OF_DATA_TO_READ_TO_RECOVER_CONVERTED_SAMPLE];
 
+	SPI_ChangeCS(config->channel_handle,config->channel_config.configOptions);
+
+
 	SPI_Write
 			(
 			config->channel_handle,
 				(uint8*)&config->control_word,
 				SIZE_OF_ADC_CONTROL_WORD,
 				(uint32*)&sizeTransfered,
-				SPI_TRANSFER_OPTIONS_SIZE_IN_BYTES
+				SPI_TRANSFER_OPTIONS_SIZE_IN_BYTES | SPI_TRANSFER_OPTIONS_CHIPSELECT_ENABLE
 			);
 	
 	
@@ -50,7 +56,7 @@ uint32_t maxim186_get_converted_sample(maxim186_configuration_t* config)
 				(uint8*)data,
 				SIZE_OF_DATA_TO_READ_TO_RECOVER_CONVERTED_SAMPLE,
 				(uint32*)&sizeTransfered,
-				SPI_TRANSFER_OPTIONS_SIZE_IN_BYTES
+				SPI_TRANSFER_OPTIONS_SIZE_IN_BYTES | SPI_TRANSFER_OPTIONS_CHIPSELECT_DISABLE
 			);
 #ifdef _DEBUG
 	assert(sizeTransfered == SIZE_OF_DATA_TO_READ_TO_RECOVER_CONVERTED_SAMPLE);

@@ -77,6 +77,7 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="electrode.h" />
     <ClInclude Include="ftd2xx.h" />
     <ClInclude Include="ftd2xx_util.h" />
     <ClInclude Include="libMPSSE_spi.h" />
@@ -86,6 +87,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="electrode.cpp" />
     <ClCompile Include="maxim186.cpp" />
     <ClCompile Include="program.cpp" />
     <ClCompile Include="SpiTestWin32.cpp" />
