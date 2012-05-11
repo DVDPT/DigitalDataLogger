@@ -11,7 +11,7 @@
 #define APP_ELECTRODE_CHIP_SELECT (SPI_CONFIG_OPTION_CS_DBUS4)
 
 #define APP_SPI_CHANNEL (0)
-#define APP_SPI_CLOCK (50000)
+#define APP_SPI_CLOCK (2000)
 #define APP_SPI_LATENCY (255)
 #define APP_SPI_PINS (0)
 
@@ -166,6 +166,15 @@ static void _adc_main()
 
 }
 
+static void _transform_converted_value(int32_t* value)
+{
+	
+	*value-=1982;
+	*value*=1000;
+	*value/=5;
+
+}
+
 static void _adc_only_test()
 {
 	FT_HANDLE handle;
@@ -213,6 +222,21 @@ static void _electrode_only_test()
 	}while(1);
 }
 
+static void _set_electrode_and_acquire_sample(
+	electrode_config_t* electrodeConfig,
+	maxim186_configuration_t* adcConfig,
+	int minus,
+	int plus)
+{
+	int32_t sample;
+	int32_t adcsample;
+	electrode_set(electrodeConfig,minus,plus);
+
+	adcsample = sample = maxim186_get_converted_sample(adcConfig);
+	_transform_converted_value(&sample);
+	printf("ADC sample for %d - %d --> %d | %d\n",minus,plus,sample,adcsample);
+}
+
 static void _adc_and_electrode_test()
 {
 	FT_HANDLE handle;
@@ -221,6 +245,7 @@ static void _adc_and_electrode_test()
 	electrode_config_t electrodeConfig;
 	maxim186_configuration_t adcConfig;
 	uint32_t convertedValue;
+	bool state = true;
 
 	_initialize();
 
@@ -230,21 +255,19 @@ static void _adc_and_electrode_test()
 
 	_init_adc_channel(&adcConfig,MAXIM186_CONFIG_CHANNEL_0);
 
+	SPI_IsBusy(handle,&state);
+
 	maxim186_init(&adcConfig, handle);
 	electrode_init(&electrodeConfig , handle,false);
 	
 	do
 	{
-		printf("loop\n");
-
-		//convertedValue = maxim186_get_converted_sample(&adcConfig);
-		//printf("value %d",convertedValue);
-
-	electrode_set(&electrodeConfig,0x0,0x0);
-		
-		printf("ended electrode\n");
-		
-		Sleep(500);
+		_set_electrode_and_acquire_sample(&electrodeConfig,&adcConfig,0,1);
+		_set_electrode_and_acquire_sample(&electrodeConfig,&adcConfig,1,0);
+		_set_electrode_and_acquire_sample(&electrodeConfig,&adcConfig,2,3);
+		_set_electrode_and_acquire_sample(&electrodeConfig,&adcConfig,3,2);
+		getchar();
+		printf("------------------------------------------------\n");
 	}while(1);
 
 }
@@ -254,8 +277,8 @@ static void _adc_and_electrode_test()
 int _tmain(int argc, _TCHAR* argv[])
 {
 	//_adc_main();
-	//_adc_only_test();
+	_adc_only_test();
 	//_electrode_only_test();
-	_adc_and_electrode_test();
+	//_adc_and_electrode_test();
 	return 1;
 }

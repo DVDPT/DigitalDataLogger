@@ -15,8 +15,8 @@ void electrode_init(electrode_config_t* cfg, FT_HANDLE handle, bool initHandle)
 #ifdef _DEBUG
 
 	FTD2XXX_CHECK_STATUS(SPI_InitChannel(cfg->handle, &cfg->channel_config));
-#elif
-	SPI_InitChannel(cfg->handle, &cfg->channel_config);
+#else
+		SPI_InitChannel(cfg->handle, &cfg->channel_config);
 #endif
 }
 
@@ -36,7 +36,6 @@ void electrode_set(electrode_config_t* cfg, uint16_t minus, uint16_t plus)
 	electrodeOut[1] = value & 0xFF;
 	electrodeOut[0] = value >> 8;
 
-	printf("\n%x-%x\n",electrodeOut[1], electrodeOut[0]);
 
 	SPI_ChangeCS(cfg->handle,cfg->channel_config.configOptions);
 

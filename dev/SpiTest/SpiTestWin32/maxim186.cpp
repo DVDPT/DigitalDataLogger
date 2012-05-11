@@ -21,8 +21,8 @@ void maxim186_init(maxim186_configuration_t* adcConfig, FT_HANDLE handle, bool i
 #ifdef _DEBUG
 
 	FTD2XXX_CHECK_STATUS(SPI_InitChannel(adcConfig->channel_handle, &adcConfig->channel_config));
-#elif
-	SPI_InitChannel(adcConfig->channel_handle, &adcConfig->channel_config)
+#else
+	SPI_InitChannel(adcConfig->channel_handle, &adcConfig->channel_config);
 #endif
 
 }
@@ -34,7 +34,6 @@ uint32_t maxim186_get_converted_sample(maxim186_configuration_t* config)
 	uint8_t data[SIZE_OF_DATA_TO_READ_TO_RECOVER_CONVERTED_SAMPLE];
 
 	SPI_ChangeCS(config->channel_handle,config->channel_config.configOptions);
-
 
 	SPI_Write
 			(
